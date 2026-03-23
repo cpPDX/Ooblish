@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ooblish Translator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4ade80;
+    --accent-dim: rgba(74,222,128,0.12);
+    --accent2: #f97316;
+    --text: #e8eaf0;
+    --muted: #6b7694;
+    --oob: #4ade80;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Space Grotesk’, sans-serif;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 0.9rem 1.5rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+flex-wrap: wrap;
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 0.6rem;
+}
+
+.logo-icon {
+width: 32px; height: 32px;
+background: var(–accent-dim);
+border: 1px solid rgba(74,222,128,0.3);
+border-radius: 8px;
+display: flex; align-items: center; justify-content: center;
+font-size: 1rem;
+}
+
+.logo-title {
+font-family: ‘Syne’, sans-serif;
+font-size: 1.3rem;
+font-weight: 800;
+color: var(–accent);
+letter-spacing: -0.5px;
+}
+
+.logo-sub {
+font-size: 0.7rem;
+font-weight: 600;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+.key-pill {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+font-size: 0.75rem;
+font-weight: 600;
+letter-spacing: 0.5px;
+padding: 0.4rem 0.9rem;
+border-radius: 20px;
+border: 1px solid var(–border);
+background: var(–surface2);
+color: var(–muted);
+cursor: pointer;
+transition: all 0.15s;
+user-select: none;
+}
+.key-pill:hover { border-color: var(–accent); color: var(–accent); }
+.key-pill.ready { border-color: rgba(74,222,128,0.4); color: var(–accent); background: var(–accent-dim); }
+.key-pill.error { border-color: rgba(249,115,22,0.4); color: var(–accent2); background: rgba(249,115,22,0.08); }
+
+/* ── Key drawer ── */
+.key-drawer {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.3s ease, padding 0.3s ease;
+padding: 0 1.5rem;
+}
+.key-drawer.open {
+max-height: 160px;
+padding: 1rem 1.5rem;
+}
+
+.key-drawer-inner {
+max-width: 640px;
+margin: 0 auto;
+}
+
+.drawer-label {
+font-size: 0.7rem;
+font-weight: 700;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 0.5rem;
+}
+
+.key-row {
+display: flex;
+gap: 0.5rem;
+margin-bottom: 0.6rem;
+}
+
+.key-row input {
+flex: 1; min-width: 0;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 0.55rem 0.9rem;
+font-family: ‘Space Grotesk’, sans-serif;
+font-size: 0.88rem;
+color: var(–text);
+outline: none;
+transition: border-color 0.2s;
+}
+.key-row input:focus { border-color: var(–accent); }
+.key-row input::placeholder { color: var(–muted); }
+
+.btn-save {
+background: var(–accent);
+color: #0e1117;
+border: none;
+border-radius: 8px;
+font-family: ‘Space Grotesk’, sans-serif;
+font-weight: 700;
+font-size: 0.85rem;
+padding: 0.55rem 1.1rem;
+cursor: pointer;
+transition: opacity 0.15s;
+white-space: nowrap;
+}
+.btn-save:hover { opacity: 0.85; }
+
+.voice-chips {
+display: flex;
+gap: 0.4rem;
+flex-wrap: wrap;
+}
+
+.vchip {
+font-size: 0.72rem;
+font-weight: 600;
+padding: 0.22rem 0.7rem;
+border-radius: 20px;
+border: 1px solid var(–border);
+background: var(–surface2);
+color: var(–muted);
+cursor: pointer;
+transition: all 0.15s;
+font-family: ‘Space Grotesk’, sans-serif;
+}
+.vchip:hover { border-color: var(–accent); color: var(–accent); }
+.vchip.active { background: var(–accent-dim); border-color: rgba(74,222,128,0.5); color: var(–accent); font-weight: 700; }
+
+/* ── Lang bar ── */
+.lang-bar {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: stretch;
+justify-content: center;
+max-width: 700px;
+margin: 0 auto;
+width: 100%;
+}
+
+.lang-tab {
+padding: 0.7rem 2rem;
+font-size: 0.82rem;
+font-weight: 700;
+letter-spacing: 1px;
+text-transform: uppercase;
+color: var(–muted);
+border-bottom: 2px solid transparent;
+transition: all 0.15s;
+white-space: nowrap;
+}
+.lang-tab.active-src { color: var(–text); border-bottom-color: var(–text); }
+.lang-tab.active-dst { color: var(–oob); border-bottom-color: var(–oob); }
+
+.lang-arrow {
+display: flex;
+align-items: center;
+color: var(–muted);
+font-size: 1rem;
+padding: 0 0.5rem;
+user-select: none;
+}
+
+/* ── Main area ── */
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 1.5rem;
+gap: 1rem;
+}
+
+.panels {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1rem;
+width: 100%;
+max-width: 900px;
+}
+
+@media (max-width: 600px) {
+.panels { grid-template-columns: 1fr; }
+header { padding: 0.75rem 1rem; }
+main { padding: 1rem; }
+.key-drawer.open { padding: 0.75rem 1rem; }
+.lang-tab { padding: 0.6rem 1rem; }
+}
+
+.panel {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+min-height: 240px;
+transition: border-color 0.2s;
+}
+.panel:focus-within { border-color: rgba(74,222,128,0.3); }
+
+.panel-top {
+padding: 0.65rem 1rem;
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.panel-lang-label {
+font-size: 0.72rem;
+font-weight: 700;
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+.panel.src .panel-lang-label { color: var(–muted); }
+.panel.dst .panel-lang-label { color: var(–oob); }
+
+.panel-btns {
+display: flex;
+gap: 0.25rem;
+}
+
+.icon-btn {
+background: none;
+border: none;
+cursor: pointer;
+color: var(–muted);
+padding: 0.3rem 0.5rem;
+border-radius: 6px;
+font-size: 0.95rem;
+line-height: 1;
+transition: color 0.15s, background 0.15s;
+font-family: inherit;
+}
+.icon-btn:hover { color: var(–text); background: var(–surface2); }
+.icon-btn.speak:hover { color: var(–oob); }
+
+textarea {
+flex: 1;
+border: none;
+outline: none;
+resize: none;
+padding: 1rem;
+font-family: ‘Space Grotesk’, sans-serif;
+font-size: 1.1rem;
+line-height: 1.65;
+color: var(–text);
+background: transparent;
+width: 100%;
+min-height: 160px;
+}
+textarea::placeholder { color: var(–muted); opacity: 0.6; }
+
+.output-body {
+flex: 1;
+padding: 1rem;
+font-family: ‘Syne’, sans-serif;
+font-size: 1.1rem;
+font-weight: 700;
+line-height: 1.65;
+color: var(–oob);
+word-break: break-word;
+overflow-wrap: anywhere;
+white-space: pre-wrap;
+min-height: 160px;
+}
+.output-body.placeholder {
+font-family: ‘Space Grotesk’, sans-serif;
+font-weight: 400;
+font-size: 0.95rem;
+color: var(–muted);
+opacity: 0.5;
+}
+
+.panel-bottom {
+padding: 0.4rem 1rem;
+border-top: 1px solid var(–border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 0.5rem;
+min-height: 36px;
+}
+
+.char-count {
+font-size: 0.72rem;
+color: var(–muted);
+}
+
+/* ── Translate button ── */
+.action-row {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+flex-wrap: wrap;
+justify-content: center;
+}
+
+.btn-translate {
+background: var(–accent);
+color: #0e1117;
+border: none;
+border-radius: 50px;
+font-family: ‘Syne’, sans-serif;
+font-weight: 800;
+font-size: 1rem;
+padding: 0.8rem 2.5rem;
+cursor: pointer;
+box-shadow: 0 0 30px rgba(74,222,128,0.25);
+transition: transform 0.12s, box-shadow 0.12s;
+letter-spacing: 0.3px;
+}
+.btn-translate:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(74,222,128,0.4); }
+.btn-translate:active { transform: scale(0.97); }
+
+.btn-clear {
+background: none;
+border: 1px solid var(–border);
+border-radius: 50px;
+font-family: ‘Space Grotesk’, sans-serif;
+font-weight: 600;
+font-size: 0.88rem;
+padding: 0.8rem 1.4rem;
+color: var(–muted);
+cursor: pointer;
+transition: all 0.15s;
+}
+.btn-clear:hover { border-color: var(–accent2); color: var(–accent2); }
+
+/* ── Speaking indicator ── */
+.speaking-pill {
+display: none;
+align-items: center;
+gap: 0.4rem;
+background: var(–accent-dim);
+border: 1px solid rgba(74,222,128,0.3);
+border-radius: 20px;
+padding: 0.35rem 0.9rem;
+font-size: 0.72rem;
+font-weight: 700;
+letter-spacing: 1px;
+text-transform: uppercase;
+color: var(–accent);
+}
+.speaking-pill.visible { display: flex; }
+
+.dot {
+width: 5px; height: 5px; border-radius: 50%;
+background: var(–accent);
+animation: pulse 0.6s ease-in-out infinite alternate;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse {
+from { opacity: 0.3; transform: scale(0.7); }
+to   { opacity: 1;   transform: scale(1.3); }
+}
+
+/* ── Footer ── */
+footer {
+text-align: center;
+padding: 0.75rem 1rem 1.25rem;
+font-size: 0.75rem;
+color: var(–muted);
+line-height: 1.7;
+max-width: 560px;
+margin: 0 auto;
+}
+footer strong { color: var(–oob); }
+
+/* ── Toast ── */
+.toast {
+position: fixed;
+bottom: 1.5rem; left: 50%;
+transform: translateX(-50%) translateY(60px);
+background: var(–surface2);
+border: 1px solid var(–border);
+color: var(–text);
+font-size: 0.82rem;
+font-weight: 600;
+padding: 0.6rem 1.3rem;
+border-radius: 50px;
+opacity: 0;
+transition: transform 0.3s ease, opacity 0.3s ease;
+pointer-events: none;
+white-space: nowrap;
+z-index: 100;
+box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.err { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.4); color: var(–accent2); }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🫧</div>
+    <div>
+      <div class="logo-title">Ooblish</div>
+      <div class="logo-sub">Universal Translator</div>
+    </div>
+  </div>
+  <button class="key-pill" id="keyPill" onclick="toggleDrawer()">
+    <span>🔑</span> <span id="keyPillLabel">ElevenLabs: not set</span>
+  </button>
+</header>
+
+<div class="key-drawer" id="keyDrawer">
+  <div class="key-drawer-inner">
+    <div class="drawer-label">ElevenLabs API Key &mdash; stays in your browser only</div>
+    <div class="key-row">
+      <input type="password" id="apiKeyInput" placeholder="Paste your ElevenLabs API key..." autocomplete="off" />
+      <button class="btn-save" onclick="saveKey()">Save</button>
+    </div>
+    <div class="voice-chips">
+      <span class="vchip active" data-id="JBFqnCBsd6RMkjVDRZzb" onclick="selectVoice(this)">George</span>
+      <span class="vchip" data-id="EXAVITQu4vr4xnSDxMaL" onclick="selectVoice(this)">Sarah</span>
+      <span class="vchip" data-id="TX3LPaxmHKxFdv7VOQHJ" onclick="selectVoice(this)">Liam</span>
+      <span class="vchip" data-id="pFZP5JQG7iQjIQuC4Bku" onclick="selectVoice(this)">Lily</span>
+      <span class="vchip" data-id="onwK4e9ZLuTAKqWW03F9" onclick="selectVoice(this)">Daniel</span>
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--surface); border-bottom:1px solid var(--border);">
+  <div class="lang-bar">
+    <div class="lang-tab active-src">English</div>
+    <div class="lang-arrow">→</div>
+    <div class="lang-tab active-dst">Ooblish</div>
+  </div>
+</div>
+
+<main>
+  <div class="panels">
+
+```
+<!-- Source panel -->
+<div class="panel src">
+  <div class="panel-top">
+    <span class="panel-lang-label">English</span>
+    <div class="panel-btns">
+      <button class="icon-btn" onclick="clearAll()" title="Clear">✕</button>
+    </div>
+  </div>
+  <textarea id="srcInput" placeholder="Enter text to translate into Ooblish..." maxlength="500" oninput="onInput()"></textarea>
+  <div class="panel-bottom">
+    <span class="char-count" id="charCount">0 / 500</span>
+  </div>
+</div>
+
+<!-- Output panel -->
+<div class="panel dst">
+  <div class="panel-top">
+    <span class="panel-lang-label">Ooblish</span>
+    <div class="panel-btns">
+      <button class="icon-btn" id="copyBtn" onclick="copyOoblish()" title="Copy translation">⧉</button>
+      <button class="icon-btn speak" id="speakBtn" onclick="speak()" title="Hear it in Ooblish">▶</button>
+    </div>
+  </div>
+  <div class="output-body placeholder" id="outputBody">Translation will appear here...</div>
+  <div class="panel-bottom">
+    <div class="speaking-pill" id="speakingPill">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span id="speakLabel">Speaking...</span>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- Actions -->
+
+  <div class="action-row">
+    <button class="btn-translate" onclick="translate()">Translate to Ooblish</button>
+    <button class="btn-clear" onclick="clearAll()">Clear</button>
+  </div>
+</main>
+
+<footer>
+  <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Vowel logic ──────────────────────────────────────────────────────────
+  const VOWELS = /[aeiouAEIOU]|(?<=\w)[yY]/g;
+
+  function toOoblish(text) {
+    return text.replace(VOWELS, 'oob');
+  }
+
+  function highlightVowels(text) {
+    // For display: wrap replaced vowels in a span (used in source only if needed)
+    return text.replace(VOWELS, v => `<mark style="background:rgba(74,222,128,0.15);border-radius:3px;padding:0 1px;">${v}</mark>`);
+  }
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let currentOoblish = '';
+  let apiKey         = '';
+  let voiceId        = 'JBFqnCBsd6RMkjVDRZzb';
+  let currentAudio   = null;
+  let drawerOpen     = false;
+
+  // ── Key / voice ──────────────────────────────────────────────────────────
+  function toggleDrawer() {
+    drawerOpen = !drawerOpen;
+    document.getElementById('keyDrawer').classList.toggle('open', drawerOpen);
+  }
+
+  function saveKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if (!val) return;
+    apiKey = val;
+    document.getElementById('apiKeyInput').value = '';
+    document.getElementById('apiKeyInput').placeholder = 'Key saved -- paste new key to replace';
+    const pill = document.getElementById('keyPill');
+    pill.className = 'key-pill ready';
+    document.getElementById('keyPillLabel').textContent = 'ElevenLabs: ready';
+    drawerOpen = false;
+    document.getElementById('keyDrawer').classList.remove('open');
+    showToast('ElevenLabs key saved!');
+  }
+
+  function selectVoice(el) {
+    document.querySelectorAll('.vchip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    voiceId = el.dataset.id;
+    showToast('Voice: ' + el.textContent);
+  }
+
+  // ── Translate ────────────────────────────────────────────────────────────
+  function onInput() {
+    const len = document.getElementById('srcInput').value.length;
+    document.getElementById('charCount').textContent = len + ' / 500';
+  }
+
+  function translate() {
+    const input = document.getElementById('srcInput').value.trim();
+    if (!input) {
+      document.getElementById('srcInput').focus();
+      return;
+    }
+
+    currentOoblish = toOoblish(input);
+
+    const out = document.getElementById('outputBody');
+    out.textContent = currentOoblish;
+    out.classList.remove('placeholder');
+
+    // Animate
+    out.style.opacity = '0';
+    out.style.transform = 'translateY(6px)';
+    requestAnimationFrame(() => {
+      out.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      out.style.opacity = '1';
+      out.style.transform = 'translateY(0)';
+    });
+  }
+
+  function clearAll() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    window.speechSynthesis?.cancel();
+    document.getElementById('srcInput').value = '';
+    document.getElementById('charCount').textContent = '0 / 500';
+    const out = document.getElementById('outputBody');
+    out.textContent = 'Translation will appear here...';
+    out.classList.add('placeholder');
+    out.style.transition = '';
+    currentOoblish = '';
+    document.getElementById('speakingPill').classList.remove('visible');
+    document.getElementById('speakBtn').disabled = false;
+    document.getElementById('srcInput').focus();
+  }
+
+  function copyOoblish() {
+    if (!currentOoblish) return;
+    navigator.clipboard.writeText(currentOoblish)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('Copy failed -- try manually.', true));
+  }
+
+  // ── Speech ───────────────────────────────────────────────────────────────
+  async function speak() {
+    if (!currentOoblish) {
+      showToast('Translate something first!', true);
+      return;
+    }
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+
+    if (!apiKey) {
+      showToast('No key set -- using browser voice');
+      browserSpeak(currentOoblish);
+      return;
+    }
+
+    const btn   = document.getElementById('speakBtn');
+    const pill  = document.getElementById('speakingPill');
+    btn.disabled = true;
+    document.getElementById('speakLabel').textContent = 'Speaking...';
+    pill.classList.add('visible');
+
+    try {
+      const res = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        {
+          method: 'POST',
+          headers: {
+            'xi-api-key': apiKey,
+            'Content-Type': 'application/json',
+            'Accept': 'audio/mpeg'
+          },
+          body: JSON.stringify({
+            text: currentOoblish,
+            model_id: 'eleven_turbo_v2_5',
+            voice_settings: {
+              stability: 0.4,
+              similarity_boost: 0.85,
+              style: 0.3,
+              use_speaker_boost: true
+            }
+          })
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.detail?.message || err?.detail || res.statusText);
+      }
+
+      const blob  = await res.blob();
+      const url   = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+
+      audio.onended = () => {
+        pill.classList.remove('visible');
+        btn.disabled = false;
+        URL.revokeObjectURL(url);
+        currentAudio = null;
+      };
+      audio.onerror = () => {
+        pill.classList.remove('visible');
+        btn.disabled = false;
+        URL.revokeObjectURL(url);
+        currentAudio = null;
+        showToast('Playback failed', true);
+      };
+
+      await audio.play();
+
+    } catch (err) {
+      pill.classList.remove('visible');
+      btn.disabled = false;
+
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('401') || msg.includes('invalid') || msg.includes('unauthorized')) {
+        document.getElementById('keyPill').className = 'key-pill error';
+        document.getElementById('keyPillLabel').textContent = 'Key error';
+        showToast('API key rejected -- check your key', true);
+      } else if (msg.includes('quota') || msg.includes('limit')) {
+        showToast('Quota hit -- falling back to browser voice', true);
+        browserSpeak(currentOoblish);
+      } else {
+        showToast('ElevenLabs unavailable -- using browser voice');
+        browserSpeak(currentOoblish);
+      }
+    }
+  }
+
+  function browserSpeak(text) {
+    if (!('speechSynthesis' in window)) { showToast('Speech not supported in this browser', true); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85; utter.pitch = 1.05;
+    const btn  = document.getElementById('speakBtn');
+    const pill = document.getElementById('speakingPill');
+    document.getElementById('speakLabel').textContent = 'Speaking (browser)...';
+    pill.classList.add('visible');
+    btn.disabled = true;
+    utter.onend = utter.onerror = () => { pill.classList.remove('visible'); btn.disabled = false; };
+    window.speechSynthesis.speak(utter);
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, isErr = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isErr ? ' err' : '');
+    void t.offsetWidth;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Keyboard shortcuts ───────────────────────────────────────────────────
+  document.getElementById('srcInput').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); translate(); }
+  });
+  document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveKey();
+  });
+</script>
+
+</body>
+</html>
