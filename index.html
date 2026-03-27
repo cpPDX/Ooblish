@@ -823,13 +823,17 @@ footer strong { color: var(--oob); }
       <div class="panel-top">
         <span class="panel-lang-label">English</span>
         <div class="panel-btns">
+          <button class="icon-btn speak" id="srcSpeakBtn" onclick="speakEnglish()" title="Hear in English">▶</button>
           <button class="icon-btn" onclick="clearAll()" title="Clear">✕</button>
         </div>
       </div>
       <textarea id="srcInput" placeholder="Enter text to translate into Ooblish..." maxlength="500" oninput="onInput()"></textarea>
       <div class="panel-bottom">
+        <div class="speaking-pill" id="srcSpeakPill">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span id="srcSpeakLabel">Speaking...</span>
+        </div>
         <span class="char-count" id="charCount">0 / 500</span>
-        <span style="font-size:0.7rem;color:var(--muted);opacity:0.45;">Ctrl+Enter</span>
       </div>
     </div>
 
@@ -989,6 +993,20 @@ footer strong { color: var(--oob); }
     return result;
   }
 
+  // ElevenLabs struggles with dense "oob" clusters — space them out so each
+  // oob is parsed as a distinct syllable rather than one long phoneme run.
+  function toOoblishTts(text) {
+    var result = '';
+    for (var i = 0; i < text.length; i++) {
+      if (isVowelAt(text, i)) {
+        result += ' oob ';
+      } else {
+        result += text[i];
+      }
+    }
+    return result.replace(/\s+/g, ' ').trim();
+  }
+
   function countVowels(text) {
     var n = 0;
     for (var i = 0; i < text.length; i++) {
@@ -1002,6 +1020,8 @@ footer strong { color: var(--oob); }
   var apiKey          = '';
   var voiceId         = 'JBFqnCBsd6RMkjVDRZzb';
   var currentAudio    = null;
+  var currentSpeakBtn  = null;
+  var currentSpeakPill = null;
   var drawerOpen      = false;
   var debounceTimer   = null;
   var typewriterTimer = null;
@@ -1177,35 +1197,48 @@ footer strong { color: var(--oob); }
   function stopAudio() {
     if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (currentSpeakPill) { currentSpeakPill.classList.remove('visible'); currentSpeakPill = null; }
+    if (currentSpeakBtn)  { currentSpeakBtn.disabled = false; currentSpeakBtn.textContent = '▶'; currentSpeakBtn = null; }
   }
 
   function browserSpeak(text, pillEl, btnEl, labelEl) {
     if (!window.speechSynthesis) { showToast('Speech not supported', true); return; }
-    window.speechSynthesis.cancel();
+    currentSpeakBtn  = btnEl;
+    currentSpeakPill = pillEl;
     var utter = new SpeechSynthesisUtterance(text);
     utter.rate = 0.85; utter.pitch = 1.05;
     if (labelEl) labelEl.textContent = 'Speaking (browser)...';
     pillEl.classList.add('visible');
-    btnEl.disabled = true;
-    utter.onend = utter.onerror = function() { pillEl.classList.remove('visible'); btnEl.disabled = false; };
+    btnEl.disabled = false; btnEl.textContent = '■';
+    utter.onend = utter.onerror = function() {
+      pillEl.classList.remove('visible');
+      btnEl.disabled = false; btnEl.textContent = '▶';
+      currentSpeakBtn = null; currentSpeakPill = null;
+    };
     window.speechSynthesis.speak(utter);
   }
 
-  async function speakText(text, pillEl, btnEl, labelEl) {
+  // ttsText: already-processed text to send (use toOoblishTts() for Ooblish, raw for English)
+  // voiceOpts: ElevenLabs voice_settings override (optional)
+  async function speakText(ttsText, pillEl, btnEl, labelEl, voiceOpts) {
+    if (currentSpeakBtn === btnEl) { stopAudio(); return; }  // toggle off
     stopAudio();
     if (!apiKey) {
       showToast('No key — using browser voice');
-      browserSpeak(text, pillEl, btnEl, labelEl);
+      browserSpeak(ttsText, pillEl, btnEl, labelEl);
       return;
     }
-    btnEl.disabled = true;
+    currentSpeakBtn  = btnEl;
+    currentSpeakPill = pillEl;
+    btnEl.disabled = false; btnEl.textContent = '■';
     if (labelEl) labelEl.textContent = 'Speaking...';
     pillEl.classList.add('visible');
+    var settings = voiceOpts || { stability: 0.75, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false };
     try {
       var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
         headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-        body: JSON.stringify({ text: text, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
+        body: JSON.stringify({ text: ttsText, model_id: 'eleven_turbo_v2_5', voice_settings: settings })
       });
       if (!res.ok) {
         var err = await res.json().catch(function() { return {}; });
@@ -1216,12 +1249,16 @@ footer strong { color: var(--oob); }
       var audio = new Audio(url);
       currentAudio = audio;
       audio.onended = audio.onerror = function() {
-        pillEl.classList.remove('visible'); btnEl.disabled = false;
+        pillEl.classList.remove('visible');
+        btnEl.disabled = false; btnEl.textContent = '▶';
         URL.revokeObjectURL(url); currentAudio = null;
+        currentSpeakBtn = null; currentSpeakPill = null;
       };
       await audio.play();
     } catch(err) {
-      pillEl.classList.remove('visible'); btnEl.disabled = false;
+      pillEl.classList.remove('visible');
+      btnEl.disabled = false; btnEl.textContent = '▶';
+      currentSpeakBtn = null; currentSpeakPill = null;
       var msg = (err.message || '').toLowerCase();
       if (msg.indexOf('401') >= 0 || msg.indexOf('invalid') >= 0 || msg.indexOf('unauthorized') >= 0) {
         document.getElementById('keyPill').className = 'key-pill error';
@@ -1229,7 +1266,7 @@ footer strong { color: var(--oob); }
         showToast('API key rejected', true);
       } else {
         showToast('ElevenLabs unavailable — using browser voice');
-        browserSpeak(text, pillEl, btnEl, labelEl);
+        browserSpeak(ttsText, pillEl, btnEl, labelEl);
       }
     }
   }
@@ -1237,10 +1274,22 @@ footer strong { color: var(--oob); }
   function speak() {
     if (!currentOoblish) { showToast('Translate something first!', true); return; }
     speakText(
-      currentOoblish,
+      toOoblishTts(currentOoblish),
       document.getElementById('speakingPill'),
       document.getElementById('speakBtn'),
       document.getElementById('speakLabel')
+    );
+  }
+
+  function speakEnglish() {
+    var text = document.getElementById('srcInput').value.trim();
+    if (!text) { showToast('Nothing to speak!', true); return; }
+    speakText(
+      text,
+      document.getElementById('srcSpeakPill'),
+      document.getElementById('srcSpeakBtn'),
+      document.getElementById('srcSpeakLabel'),
+      { stability: 0.5, similarity_boost: 0.75, style: 0.2, use_speaker_boost: true }
     );
   }
 
@@ -1303,7 +1352,7 @@ footer strong { color: var(--oob); }
   function speakChallenge() {
     if (!currentOoblishC) return;
     speakText(
-      currentOoblishC,
+      toOoblishTts(currentOoblishC),
       document.getElementById('challengeSpeakPill'),
       document.getElementById('challengeSpeakBtn'),
       document.getElementById('cSpeakLabel')
