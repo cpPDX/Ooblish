@@ -502,6 +502,134 @@ textarea::placeholder { color: var(--muted); opacity: 0.6; }
 }
 .btn-clear:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* ── Challenge page ── */
+.challenge-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 1.5rem; gap: 1.25rem;
+}
+
+.challenge-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  width: 100%; max-width: 640px;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+.challenge-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem;
+}
+
+.challenge-title {
+  font-family: 'Syne', sans-serif; font-size: 0.8rem;
+  font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--yellow);
+}
+
+.score-display {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 700; color: var(--muted);
+}
+.score-val { color: var(--yellow); font-size: 1rem; }
+
+.streak-badge {
+  background: var(--yellow-dim); border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 20px; padding: 0.2rem 0.6rem;
+  font-size: 0.72rem; font-weight: 700; color: var(--yellow);
+  display: none;
+}
+.streak-badge.visible { display: inline-block; }
+
+.ooblish-prompt {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.2rem 1.4rem;
+  border-left: 3px solid var(--oob);
+}
+
+.prompt-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.prompt-text {
+  font-family: 'Syne', sans-serif; font-size: 1.3rem;
+  font-weight: 700; color: var(--oob); line-height: 1.5;
+  word-break: break-word;
+}
+
+.prompt-hint { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
+
+.guess-area { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.guess-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.guess-input {
+  width: 100%; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 12px; padding: 0.85rem 1rem;
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem;
+  color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.guess-input:focus { border-color: var(--yellow); }
+.guess-input.correct { border-color: var(--accent); background: var(--accent-dim); }
+.guess-input.wrong   { border-color: var(--accent2); background: var(--accent2-dim); }
+
+.challenge-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.btn-check {
+  flex: 1; background: var(--yellow); color: #0e1117; border: none;
+  border-radius: 50px; font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1rem; padding: 0.8rem 1.5rem; cursor: pointer;
+  box-shadow: 0 0 24px rgba(251,191,36,0.2);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(251,191,36,0.35); }
+.btn-check:active { transform: scale(0.97); }
+.btn-check:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-skip {
+  background: none; border: 1px solid var(--border); border-radius: 50px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.88rem; padding: 0.8rem 1.4rem; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+.result-box {
+  border-radius: 12px; padding: 1rem 1.2rem;
+  display: none; flex-direction: column; gap: 0.4rem;
+  animation: popIn 0.25s ease both;
+}
+.result-box.show { display: flex; }
+.result-box.win  { background: var(--accent-dim);  border: 1px solid rgba(74,222,128,0.3); }
+.result-box.lose { background: var(--accent2-dim); border: 1px solid rgba(249,115,22,0.3); }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.result-headline {
+  font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800;
+}
+.result-box.win  .result-headline { color: var(--accent); }
+.result-box.lose .result-headline { color: var(--accent2); }
+
+.result-answer { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.result-answer strong { color: var(--text); }
+
+.btn-next {
+  align-self: flex-end; background: none;
+  border: 1px solid var(--border); border-radius: 20px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 0.8rem; padding: 0.35rem 1rem; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-next:hover { border-color: var(--accent); color: var(--accent); }
+
 /* ── Speaking indicator ── */
 .speaking-pill {
   display: none;
@@ -676,6 +804,47 @@ footer strong { color: var(--oob); }
 </main>
 </div><!-- end #page-translator -->
 
+<!-- ══ CHALLENGE PAGE ══ -->
+<div class="page" id="page-challenge">
+  <div class="challenge-wrap">
+    <div class="challenge-card">
+      <div class="challenge-header">
+        <span class="challenge-title">⚡ Ooblish Challenge</span>
+        <div class="score-display">
+          Score: <span class="score-val" id="scoreVal">0</span>
+          &nbsp;|&nbsp; Round: <span id="roundVal">1</span>
+          <span class="streak-badge" id="streakBadge">🔥 <span id="streakVal">0</span></span>
+        </div>
+      </div>
+      <div class="ooblish-prompt">
+        <div class="prompt-label">
+          <span>Translate this Ooblish phrase into English</span>
+          <button class="icon-btn speak" id="challengeSpeakBtn" onclick="speakChallenge()" title="Hear it">▶</button>
+        </div>
+        <div class="prompt-text" id="promptText">Loading...</div>
+        <div class="prompt-hint" id="promptHint"></div>
+      </div>
+      <div class="guess-area">
+        <div class="guess-label">Your answer in English</div>
+        <input type="text" class="guess-input" id="guessInput" placeholder="What does this say in English?" autocomplete="off" />
+      </div>
+      <div class="challenge-actions">
+        <button class="btn-check" id="checkBtn" onclick="checkAnswer()">Check Answer</button>
+        <button class="btn-skip" onclick="nextChallenge()">Skip →</button>
+      </div>
+      <div class="result-box" id="resultBox">
+        <div class="result-headline" id="resultHeadline"></div>
+        <div class="result-answer" id="resultAnswer"></div>
+        <button class="btn-next" onclick="nextChallenge()">Next challenge →</button>
+      </div>
+      <div class="speaking-pill" id="challengeSpeakPill">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span id="cSpeakLabel">Speaking...</span>
+      </div>
+    </div>
+  </div>
+</div><!-- end #page-challenge -->
+
 <footer>
   <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
 </footer>
@@ -725,6 +894,7 @@ footer strong { color: var(--oob); }
     var tabs = document.querySelectorAll('.nav-tab');
     var idx  = ['translator','challenge','about'].indexOf(name);
     if (idx >= 0) tabs[idx].classList.add('active');
+    if (name === 'challenge' && !challengeReady) initChallenge();
   }
 
   // ── Key / voice ──────────────────────────────────────────────────────────
@@ -1006,6 +1176,149 @@ footer strong { color: var(--oob); }
     window.speechSynthesis.speak(utter);
   }
 
+  // ── Challenge mode ───────────────────────────────────────────────────────
+  var CHALLENGE_PHRASES = [
+    "Hello, how are you today?",
+    "The quick brown fox jumps over the lazy dog.",
+    "I love pizza and ice cream.",
+    "What time is it?",
+    "Good morning, sunshine!",
+    "Can you help me find my keys?",
+    "The cat sat on the mat.",
+    "Happy birthday to you!",
+    "Let's go to the beach today.",
+    "My favorite color is blue.",
+    "She sells seashells by the seashore.",
+    "To be or not to be.",
+    "I am hungry, let's eat.",
+    "The stars are beautiful tonight.",
+    "Are you coming to the party?",
+    "Life is short, eat the cake.",
+    "It is a beautiful day outside.",
+    "Do you speak Ooblish?",
+    "Portland is a great city.",
+    "Keep it simple, keep it fun."
+  ];
+
+  var challengeReady  = false;
+  var score           = 0;
+  var round           = 1;
+  var streak          = 0;
+  var currentPhrase   = '';
+  var currentOoblishC = '';
+  var answered        = false;
+
+  function initChallenge() {
+    challengeReady = true;
+    loadChallenge();
+  }
+
+  function loadChallenge() {
+    answered = false;
+    document.getElementById('guessInput').value = '';
+    document.getElementById('guessInput').className = 'guess-input';
+    document.getElementById('guessInput').disabled = false;
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('resultBox').className = 'result-box';
+
+    var pool = CHALLENGE_PHRASES.filter(function(p) { return p !== currentPhrase; });
+    currentPhrase   = pool[Math.floor(Math.random() * pool.length)];
+    currentOoblishC = toOoblish(currentPhrase);
+
+    document.getElementById('promptText').textContent = currentOoblishC;
+    var words = currentPhrase.split(' ').length;
+    document.getElementById('promptHint').textContent = words + ' word' + (words !== 1 ? 's' : '');
+    document.getElementById('roundVal').textContent = round;
+    document.getElementById('guessInput').focus();
+  }
+
+  function speakChallenge() {
+    if (!currentOoblishC) return;
+    var pill = document.getElementById('challengeSpeakPill');
+    var btn  = document.getElementById('challengeSpeakBtn');
+    var lbl  = document.getElementById('cSpeakLabel');
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    pill.classList.add('visible');
+    btn.disabled = true;
+    if (!apiKey) {
+      showToast('No key — using browser voice');
+      var utter = new SpeechSynthesisUtterance(currentOoblishC);
+      utter.rate = 0.85; utter.pitch = 1.05;
+      lbl.textContent = 'Speaking (browser)...';
+      utter.onend = utter.onerror = function() { pill.classList.remove('visible'); btn.disabled = false; };
+      window.speechSynthesis.speak(utter);
+      return;
+    }
+    lbl.textContent = 'Speaking...';
+    fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+      method: 'POST',
+      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+      body: JSON.stringify({ text: currentOoblishC, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
+    }).then(function(res) {
+      if (!res.ok) throw new Error(res.statusText);
+      return res.blob();
+    }).then(function(blob) {
+      var url   = URL.createObjectURL(blob);
+      var audio = new Audio(url);
+      currentAudio = audio;
+      audio.onended = audio.onerror = function() {
+        pill.classList.remove('visible'); btn.disabled = false;
+        URL.revokeObjectURL(url); currentAudio = null;
+      };
+      audio.play();
+    }).catch(function() {
+      pill.classList.remove('visible'); btn.disabled = false;
+      showToast('ElevenLabs unavailable', true);
+    });
+  }
+
+  function checkAnswer() {
+    if (answered) return;
+    var guess = document.getElementById('guessInput').value.trim();
+    if (!guess) { document.getElementById('guessInput').focus(); return; }
+
+    answered = true;
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('guessInput').disabled = true;
+
+    var clean = function(s) { return s.toLowerCase().replace(/[^a-z\s]/g, '').trim(); };
+    var win = clean(toOoblish(guess)) === clean(toOoblish(currentPhrase));
+
+    if (win) {
+      score++;
+      streak++;
+      document.getElementById('guessInput').className = 'guess-input correct';
+      document.getElementById('resultHeadline').textContent = streak >= 3
+        ? '🔥 Ooblish Master! ' + streak + ' in a row!'
+        : '✓ Correct!';
+      document.getElementById('resultAnswer').innerHTML =
+        'The phrase was: <strong>' + currentPhrase + '</strong>';
+      document.getElementById('resultBox').className = 'result-box win show';
+    } else {
+      streak = 0;
+      document.getElementById('guessInput').className = 'guess-input wrong';
+      document.getElementById('resultHeadline').textContent = '✗ Not quite.';
+      document.getElementById('resultAnswer').innerHTML =
+        'The Ooblish said: <strong>' + currentPhrase + '</strong><br>' +
+        'You guessed: <strong>' + guess + '</strong>';
+      document.getElementById('resultBox').className = 'result-box lose show';
+    }
+
+    document.getElementById('scoreVal').textContent = score;
+    if (streak >= 2) {
+      document.getElementById('streakVal').textContent = streak;
+      document.getElementById('streakBadge').className = 'streak-badge visible';
+    } else {
+      document.getElementById('streakBadge').className = 'streak-badge';
+    }
+  }
+
+  function nextChallenge() {
+    round++;
+    loadChallenge();
+  }
+
   // ── Toast ────────────────────────────────────────────────────────────────
   var toastTimer;
   function showToast(msg, isErr) {
@@ -1024,6 +1337,9 @@ footer strong { color: var(--oob); }
   });
   document.getElementById('apiKeyInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') saveKey();
+  });
+  document.getElementById('guessInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); answered ? nextChallenge() : checkAnswer(); }
   });
 </script>
 
