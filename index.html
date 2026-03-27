@@ -771,7 +771,14 @@ footer strong { color: var(--oob); }
 
 <header>
   <div class="logo">
-    <div class="logo-icon">🗣️</div>
+    <div class="logo-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="20" height="20" fill="none">
+        <path d="M3 1.5H19Q21 1.5 21 3.5V14.5Q21 16.5 19 16.5H12L9.5 20 8.5 16.5H3Q1 16.5 1 14.5V3.5Q1 1.5 3 1.5Z"
+              fill="rgba(74,222,128,0.15)" stroke="#4ade80" stroke-width="1.2" stroke-opacity="0.8"/>
+        <path d="M4 9.5Q7 7 10 9.5Q13 12 16 9.5Q17.5 8 18.5 9.5"
+              stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
     <div>
       <div class="logo-title">Ooblish</div>
       <div class="logo-sub">Universal Translator</div>
@@ -993,6 +1000,13 @@ footer strong { color: var(--oob); }
       result += isVowelAt(text, i) ? 'oob' : text[i];
     }
     return result;
+  }
+
+  // For TTS only: insert hyphens between adjacent oob tokens so ElevenLabs
+  // treats them as distinct syllables (e.g. "audio" → oob-oob-doob-oob)
+  // without the word-break pauses that spaces cause.
+  function toOoblishTts(text) {
+    return toOoblish(text).replace(/oob(?=oob)/g, 'oob-');
   }
 
 
@@ -1262,7 +1276,7 @@ footer strong { color: var(--oob); }
   function speak() {
     if (!currentOoblish) { showToast('Translate something first!', true); return; }
     speakText(
-      currentOoblish,
+      toOoblishTts(document.getElementById('srcInput').value.trim()),
       document.getElementById('speakingPill'),
       document.getElementById('speakBtn'),
       document.getElementById('speakLabel')
@@ -1340,7 +1354,7 @@ footer strong { color: var(--oob); }
   function speakChallenge() {
     if (!currentOoblishC) return;
     speakText(
-      currentOoblishC,
+      toOoblishTts(currentPhrase),
       document.getElementById('challengeSpeakPill'),
       document.getElementById('challengeSpeakBtn'),
       document.getElementById('cSpeakLabel')
