@@ -15,6 +15,9 @@
     --accent: #4ade80;
     --accent-dim: rgba(74,222,128,0.12);
     --accent2: #f97316;
+    --accent2-dim: rgba(249,115,22,0.12);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.12);
     --text: #e8eaf0;
     --muted: #6b7694;
     --oob: #4ade80;
@@ -69,7 +72,7 @@ body {
 @keyframes orb-drift  { to { transform: translate(40px, 30px) scale(1.1); } }
 @keyframes orb-drift3 { to { transform: translate(-30px, 40px) scale(1.1); } }
 
-header, .key-drawer, .lang-wrap, main, footer { position: relative; z-index: 1; }
+header, .key-drawer, .lang-bar-wrap, main, footer { position: relative; z-index: 1; }
 
 /* ── Header ── */
 header {
@@ -83,9 +86,41 @@ header {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .logo { display: flex; align-items: center; gap: 0.6rem; }
+
+.header-right { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ── Nav tabs ── */
+.nav-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.2rem;
+}
+
+.nav-tab {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  background: none;
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.15s;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.nav-tab.active.challenge { color: var(--yellow); }
 
 .logo-icon {
   width: 36px; height: 36px;
@@ -211,8 +246,12 @@ header {
 .vchip:hover { border-color: var(--accent); color: var(--accent); }
 .vchip.active { background: var(--accent-dim); border-color: rgba(74,222,128,0.5); color: var(--accent); font-weight: 700; }
 
-/* ── Lang bar ── */
-.lang-wrap {
+/* ── Pages ── */
+.page { display: none; flex: 1; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ── Translator page ── */
+.lang-bar-wrap {
   background: rgba(22,27,39,0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -544,9 +583,16 @@ footer strong { color: var(--oob); }
       <div class="logo-sub">Universal Translator</div>
     </div>
   </div>
-  <button class="key-pill" id="keyPill" onclick="toggleDrawer()">
-    <span>🔑</span> <span id="keyPillLabel">ElevenLabs: not set</span>
-  </button>
+  <div class="header-right">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('translator')">Translate</button>
+      <button class="nav-tab challenge" onclick="showPage('challenge')">⚡ Challenge</button>
+      <button class="nav-tab" onclick="showPage('about')">About</button>
+    </div>
+    <button class="key-pill" id="keyPill" onclick="toggleDrawer()">
+      🔑 <span id="keyPillLabel">ElevenLabs</span>
+    </button>
+  </div>
 </header>
 
 <div class="key-drawer" id="keyDrawer">
@@ -566,7 +612,8 @@ footer strong { color: var(--oob); }
   </div>
 </div>
 
-<div class="lang-wrap">
+<div class="page active" id="page-translator">
+<div class="lang-bar-wrap">
   <div class="lang-bar">
     <div class="lang-tab active-src">English</div>
     <div class="lang-arrow">→</div>
@@ -627,6 +674,7 @@ footer strong { color: var(--oob); }
     <button class="btn-clear" onclick="clearAll()">Clear</button>
   </div>
 </main>
+</div><!-- end #page-translator -->
 
 <footer>
   <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
@@ -668,6 +716,16 @@ footer strong { color: var(--oob); }
   var drawerOpen      = false;
   var debounceTimer   = null;
   var typewriterTimer = null;
+
+  // ── Page nav ─────────────────────────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('page-' + name).classList.add('active');
+    var tabs = document.querySelectorAll('.nav-tab');
+    var idx  = ['translator','challenge','about'].indexOf(name);
+    if (idx >= 0) tabs[idx].classList.add('active');
+  }
 
   // ── Key / voice ──────────────────────────────────────────────────────────
   function toggleDrawer() {
