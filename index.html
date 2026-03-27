@@ -15,6 +15,9 @@
     --accent: #4ade80;
     --accent-dim: rgba(74,222,128,0.12);
     --accent2: #f97316;
+    --accent2-dim: rgba(249,115,22,0.12);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.12);
     --text: #e8eaf0;
     --muted: #6b7694;
     --oob: #4ade80;
@@ -69,7 +72,7 @@ body {
 @keyframes orb-drift  { to { transform: translate(40px, 30px) scale(1.1); } }
 @keyframes orb-drift3 { to { transform: translate(-30px, 40px) scale(1.1); } }
 
-header, .key-drawer, .lang-wrap, main, footer { position: relative; z-index: 1; }
+header, .key-drawer, .lang-bar-wrap, main, footer { position: relative; z-index: 1; }
 
 /* ── Header ── */
 header {
@@ -83,9 +86,41 @@ header {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .logo { display: flex; align-items: center; gap: 0.6rem; }
+
+.header-right { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ── Nav tabs ── */
+.nav-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.2rem;
+}
+
+.nav-tab {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  background: none;
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.15s;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.nav-tab.active.challenge { color: var(--yellow); }
 
 .logo-icon {
   width: 36px; height: 36px;
@@ -211,8 +246,12 @@ header {
 .vchip:hover { border-color: var(--accent); color: var(--accent); }
 .vchip.active { background: var(--accent-dim); border-color: rgba(74,222,128,0.5); color: var(--accent); font-weight: 700; }
 
-/* ── Lang bar ── */
-.lang-wrap {
+/* ── Pages ── */
+.page { display: none; flex: 1; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ── Translator page ── */
+.lang-bar-wrap {
   background: rgba(22,27,39,0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -463,6 +502,200 @@ textarea::placeholder { color: var(--muted); opacity: 0.6; }
 }
 .btn-clear:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* ── Challenge page ── */
+.challenge-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 1.5rem; gap: 1.25rem;
+}
+
+.challenge-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  width: 100%; max-width: 640px;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+.challenge-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem;
+}
+
+.challenge-title {
+  font-family: 'Syne', sans-serif; font-size: 0.8rem;
+  font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--yellow);
+}
+
+.score-display {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 700; color: var(--muted);
+}
+.score-val { color: var(--yellow); font-size: 1rem; }
+
+.streak-badge {
+  background: var(--yellow-dim); border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 20px; padding: 0.2rem 0.6rem;
+  font-size: 0.72rem; font-weight: 700; color: var(--yellow);
+  display: none;
+}
+.streak-badge.visible { display: inline-block; }
+
+.ooblish-prompt {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.2rem 1.4rem;
+  border-left: 3px solid var(--oob);
+}
+
+.prompt-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.prompt-text {
+  font-family: 'Syne', sans-serif; font-size: 1.3rem;
+  font-weight: 700; color: var(--oob); line-height: 1.5;
+  word-break: break-word;
+}
+
+.prompt-hint { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
+
+.guess-area { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.guess-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.guess-input {
+  width: 100%; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 12px; padding: 0.85rem 1rem;
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem;
+  color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.guess-input:focus { border-color: var(--yellow); }
+.guess-input.correct { border-color: var(--accent); background: var(--accent-dim); }
+.guess-input.wrong   { border-color: var(--accent2); background: var(--accent2-dim); }
+
+.challenge-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.btn-check {
+  flex: 1; background: var(--yellow); color: #0e1117; border: none;
+  border-radius: 50px; font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1rem; padding: 0.8rem 1.5rem; cursor: pointer;
+  box-shadow: 0 0 24px rgba(251,191,36,0.2);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(251,191,36,0.35); }
+.btn-check:active { transform: scale(0.97); }
+.btn-check:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-skip {
+  background: none; border: 1px solid var(--border); border-radius: 50px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+  font-size: 0.88rem; padding: 0.8rem 1.4rem; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+.result-box {
+  border-radius: 12px; padding: 1rem 1.2rem;
+  display: none; flex-direction: column; gap: 0.4rem;
+  animation: popIn 0.25s ease both;
+}
+.result-box.show { display: flex; }
+.result-box.win  { background: var(--accent-dim);  border: 1px solid rgba(74,222,128,0.3); }
+.result-box.lose { background: var(--accent2-dim); border: 1px solid rgba(249,115,22,0.3); }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.result-headline {
+  font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800;
+}
+.result-box.win  .result-headline { color: var(--accent); }
+.result-box.lose .result-headline { color: var(--accent2); }
+
+.result-answer { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.result-answer strong { color: var(--text); }
+
+.btn-next {
+  align-self: flex-end; background: none;
+  border: 1px solid var(--border); border-radius: 20px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 0.8rem; padding: 0.35rem 1rem; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-next:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── About page ── */
+.about-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 1.5rem 1.5rem 2.5rem; gap: 1.25rem;
+}
+
+.about-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  width: 100%; max-width: 640px;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+.about-section-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem;
+}
+
+.about-lore { font-size: 0.95rem; line-height: 1.8; color: var(--text); }
+.about-lore strong { color: var(--oob); }
+.about-lore em { color: var(--muted); font-style: italic; }
+
+.rules-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem; align-items: start;
+}
+
+.rule-key {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  color: var(--oob); font-size: 1rem; white-space: nowrap;
+}
+
+.rule-val { font-size: 0.88rem; color: var(--muted); line-height: 1.5; padding-top: 0.1rem; }
+
+.credit-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem 1.4rem;
+  border-left: 3px solid var(--yellow);
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+
+.credit-name {
+  font-family: 'Syne', sans-serif; font-size: 1.2rem;
+  font-weight: 800; color: var(--yellow);
+}
+
+.credit-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.credit-desc { font-size: 0.9rem; color: var(--text); line-height: 1.6; margin-top: 0.25rem; }
+
+.credit-ip {
+  font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(251,191,36,0.06);
+  border-radius: 6px; border: 1px solid rgba(251,191,36,0.15);
+  display: inline-block;
+}
+
+.ui-credit {
+  font-size: 0.75rem; color: var(--muted); text-align: center;
+  padding-top: 0.5rem; border-top: 1px solid var(--border);
+}
+
 /* ── Speaking indicator ── */
 .speaking-pill {
   display: none;
@@ -544,9 +777,16 @@ footer strong { color: var(--oob); }
       <div class="logo-sub">Universal Translator</div>
     </div>
   </div>
-  <button class="key-pill" id="keyPill" onclick="toggleDrawer()">
-    <span>🔑</span> <span id="keyPillLabel">ElevenLabs: not set</span>
-  </button>
+  <div class="header-right">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('translator')">Translate</button>
+      <button class="nav-tab challenge" onclick="showPage('challenge')">⚡ Challenge</button>
+      <button class="nav-tab" onclick="showPage('about')">About</button>
+    </div>
+    <button class="key-pill" id="keyPill" onclick="toggleDrawer()">
+      🔑 <span id="keyPillLabel">ElevenLabs</span>
+    </button>
+  </div>
 </header>
 
 <div class="key-drawer" id="keyDrawer">
@@ -566,7 +806,8 @@ footer strong { color: var(--oob); }
   </div>
 </div>
 
-<div class="lang-wrap">
+<div class="page active" id="page-translator">
+<div class="lang-bar-wrap">
   <div class="lang-bar">
     <div class="lang-tab active-src">English</div>
     <div class="lang-arrow">→</div>
@@ -627,9 +868,105 @@ footer strong { color: var(--oob); }
     <button class="btn-clear" onclick="clearAll()">Clear</button>
   </div>
 </main>
+</div><!-- end #page-translator -->
+
+<!-- ══ CHALLENGE PAGE ══ -->
+<div class="page" id="page-challenge">
+  <div class="challenge-wrap">
+    <div class="challenge-card">
+      <div class="challenge-header">
+        <span class="challenge-title">⚡ Ooblish Challenge</span>
+        <div class="score-display">
+          Score: <span class="score-val" id="scoreVal">0</span>
+          &nbsp;|&nbsp; Round: <span id="roundVal">1</span>
+          <span class="streak-badge" id="streakBadge">🔥 <span id="streakVal">0</span></span>
+        </div>
+      </div>
+      <div class="ooblish-prompt">
+        <div class="prompt-label">
+          <span>Translate this Ooblish phrase into English</span>
+          <button class="icon-btn speak" id="challengeSpeakBtn" onclick="speakChallenge()" title="Hear it">▶</button>
+        </div>
+        <div class="prompt-text" id="promptText">Loading...</div>
+        <div class="prompt-hint" id="promptHint"></div>
+      </div>
+      <div class="guess-area">
+        <div class="guess-label">Your answer in English</div>
+        <input type="text" class="guess-input" id="guessInput" placeholder="What does this say in English?" autocomplete="off" />
+      </div>
+      <div class="challenge-actions">
+        <button class="btn-check" id="checkBtn" onclick="checkAnswer()">Check Answer</button>
+        <button class="btn-skip" onclick="nextChallenge()">Skip →</button>
+      </div>
+      <div class="result-box" id="resultBox">
+        <div class="result-headline" id="resultHeadline"></div>
+        <div class="result-answer" id="resultAnswer"></div>
+        <button class="btn-next" onclick="nextChallenge()">Next challenge →</button>
+      </div>
+      <div class="speaking-pill" id="challengeSpeakPill">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span id="cSpeakLabel">Speaking...</span>
+      </div>
+    </div>
+  </div>
+</div><!-- end #page-challenge -->
+
+<!-- ══ ABOUT PAGE ══ -->
+<div class="page" id="page-about">
+  <div class="about-wrap">
+    <div class="about-card">
+      <div>
+        <div class="about-section-title">What is Ooblish?</div>
+        <div class="about-lore">
+          <strong>Ooblish</strong> is a constructed language built on a single, elegant rule: every vowel is a lie.
+          In Ooblish, no vowel survives in its original form &mdash; each one is replaced by the sacred syllable <strong>oob</strong>.
+          <br><br>
+          The result is a language that sounds <em>almost</em> like English but wrong in the most delightful way.
+          Native speakers of Ooblish are said to communicate entirely in rhythm and consonants, using <strong>oob</strong>
+          wherever emotion would otherwise require a vowel.
+          <br><br>
+          Even the letter <strong>Y</strong>, when it dares to act like a vowel, is not spared.
+        </div>
+      </div>
+      <div>
+        <div class="about-section-title">The Rules of Ooblish</div>
+        <div class="rules-grid">
+          <div class="rule-key">A → oob</div>
+          <div class="rule-val">Always replaced. No exceptions. <em>cat → coobt</em></div>
+          <div class="rule-key">E → oob</div>
+          <div class="rule-val">Every E. Every time. <em>hello → hoobboollo</em></div>
+          <div class="rule-key">I → oob</div>
+          <div class="rule-val">Including silent ones. <em>bike → booboobk</em></div>
+          <div class="rule-key">O → oob</div>
+          <div class="rule-val">Yes, even the O in oob itself. <em>open → oobboobn</em></div>
+          <div class="rule-key">U → oob</div>
+          <div class="rule-val">Unconditionally. <em>fun → foobn</em></div>
+          <div class="rule-key">Y → oob*</div>
+          <div class="rule-val">*Only when acting as a vowel (mid/end of word). <em>sky → skoob, yes → yes</em></div>
+        </div>
+      </div>
+      <div>
+        <div class="about-section-title">Intellectual Property</div>
+        <div class="credit-box">
+          <div class="credit-title">Creator &amp; Original Inventor</div>
+          <div class="credit-name">Kayd Phelan</div>
+          <div class="credit-desc">
+            Ooblish was invented by Kayd Phelan. The language, its rules, its name, and the concept of
+            replacing vowels with "oob" are entirely his original idea. This translator exists to bring
+            his vision to life &mdash; the idea was always his.
+          </div>
+          <div class="credit-ip">© Kayd Phelan. All intellectual property rights reserved.</div>
+        </div>
+      </div>
+      <div class="ui-credit">
+        UI and development by Chris Phelan &nbsp;·&nbsp; Built with Claude
+      </div>
+    </div>
+  </div>
+</div><!-- end #page-about -->
 
 <footer>
-  <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
+  <strong>Ooblish</strong> &mdash; the language where every vowel becomes <strong>oob</strong>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -668,6 +1005,17 @@ footer strong { color: var(--oob); }
   var drawerOpen      = false;
   var debounceTimer   = null;
   var typewriterTimer = null;
+
+  // ── Page nav ─────────────────────────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('page-' + name).classList.add('active');
+    var tabs = document.querySelectorAll('.nav-tab');
+    var idx  = ['translator','challenge','about'].indexOf(name);
+    if (idx >= 0) tabs[idx].classList.add('active');
+    if (name === 'challenge' && !challengeReady) initChallenge();
+  }
 
   // ── Key / voice ──────────────────────────────────────────────────────────
   function toggleDrawer() {
@@ -787,8 +1135,7 @@ footer strong { color: var(--oob); }
   }
 
   function clearAll() {
-    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    stopAudio();
     clearTimeout(debounceTimer);
     document.getElementById('srcInput').value = '';
     var cc = document.getElementById('charCount');
@@ -826,126 +1173,187 @@ footer strong { color: var(--oob); }
     input.focus();
   }
 
-  // ── Speech ───────────────────────────────────────────────────────────────
-  async function speak() {
-    if (!currentOoblish) { showToast('Translate something first!', true); return; }
+  // ── Speech (shared) ──────────────────────────────────────────────────────
+  function stopAudio() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
 
-    var btn  = document.getElementById('speakBtn');
-    var pill = document.getElementById('speakingPill');
+  function browserSpeak(text, pillEl, btnEl, labelEl) {
+    if (!window.speechSynthesis) { showToast('Speech not supported', true); return; }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85; utter.pitch = 1.05;
+    if (labelEl) labelEl.textContent = 'Speaking (browser)...';
+    pillEl.classList.add('visible');
+    btnEl.disabled = true;
+    utter.onend = utter.onerror = function() { pillEl.classList.remove('visible'); btnEl.disabled = false; };
+    window.speechSynthesis.speak(utter);
+  }
 
-    // Toggle off if already playing
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio       = null;
-      btn.textContent    = '▶';
-      btn.disabled       = false;
-      pill.classList.remove('visible');
-      return;
-    }
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-      btn.textContent = '▶';
-      btn.disabled    = false;
-      pill.classList.remove('visible');
-      return;
-    }
-
+  async function speakText(text, pillEl, btnEl, labelEl) {
+    stopAudio();
     if (!apiKey) {
-      showToast('No key set — using browser voice');
-      browserSpeak(currentOoblish);
+      showToast('No key — using browser voice');
+      browserSpeak(text, pillEl, btnEl, labelEl);
       return;
     }
-
-    btn.disabled    = true;
-    btn.textContent = '⏸';
-    document.getElementById('speakLabel').textContent = 'Speaking...';
-    pill.classList.add('visible');
-
+    btnEl.disabled = true;
+    if (labelEl) labelEl.textContent = 'Speaking...';
+    pillEl.classList.add('visible');
     try {
-      var res = await fetch(
-        'https://api.elevenlabs.io/v1/text-to-speech/' + voiceId,
-        {
-          method: 'POST',
-          headers: {
-            'xi-api-key':   apiKey,
-            'Content-Type': 'application/json',
-            'Accept':       'audio/mpeg'
-          },
-          body: JSON.stringify({
-            text:     currentOoblish,
-            model_id: 'eleven_turbo_v2_5',
-            voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true }
-          })
-        }
-      );
-
+      var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+        method: 'POST',
+        headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+        body: JSON.stringify({ text: text, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
+      });
       if (!res.ok) {
         var err = await res.json().catch(function() { return {}; });
         throw new Error((err && err.detail && (err.detail.message || err.detail)) || res.statusText);
       }
-
       var blob  = await res.blob();
       var url   = URL.createObjectURL(blob);
       var audio = new Audio(url);
-      currentAudio    = audio;
-      btn.disabled    = false;
-
-      audio.onended = function() {
-        pill.classList.remove('visible');
-        btn.disabled    = false;
-        btn.textContent = '▶';
-        URL.revokeObjectURL(url);
-        currentAudio = null;
+      currentAudio = audio;
+      audio.onended = audio.onerror = function() {
+        pillEl.classList.remove('visible'); btnEl.disabled = false;
+        URL.revokeObjectURL(url); currentAudio = null;
       };
-      audio.onerror = function() {
-        pill.classList.remove('visible');
-        btn.disabled    = false;
-        btn.textContent = '▶';
-        URL.revokeObjectURL(url);
-        currentAudio = null;
-        showToast('Playback failed', true);
-      };
-
       await audio.play();
-
     } catch(err) {
-      pill.classList.remove('visible');
-      btn.disabled    = false;
-      btn.textContent = '▶';
-
+      pillEl.classList.remove('visible'); btnEl.disabled = false;
       var msg = (err.message || '').toLowerCase();
       if (msg.indexOf('401') >= 0 || msg.indexOf('invalid') >= 0 || msg.indexOf('unauthorized') >= 0) {
         document.getElementById('keyPill').className = 'key-pill error';
         document.getElementById('keyPillLabel').textContent = 'Key error';
-        showToast('API key rejected — check your key', true);
-      } else if (msg.indexOf('quota') >= 0 || msg.indexOf('limit') >= 0) {
-        showToast('Quota hit — falling back to browser voice', true);
-        browserSpeak(currentOoblish);
+        showToast('API key rejected', true);
       } else {
         showToast('ElevenLabs unavailable — using browser voice');
-        browserSpeak(currentOoblish);
+        browserSpeak(text, pillEl, btnEl, labelEl);
       }
     }
   }
 
-  function browserSpeak(text) {
-    if (!window.speechSynthesis) { showToast('Speech not supported in this browser', true); return; }
-    window.speechSynthesis.cancel();
-    var utter = new SpeechSynthesisUtterance(text);
-    utter.rate  = 0.85;
-    utter.pitch = 1.05;
-    var btn  = document.getElementById('speakBtn');
-    var pill = document.getElementById('speakingPill');
-    document.getElementById('speakLabel').textContent = 'Speaking (browser)...';
-    pill.classList.add('visible');
-    btn.disabled    = false;
-    btn.textContent = '⏸';
-    utter.onend = utter.onerror = function() {
-      pill.classList.remove('visible');
-      btn.disabled    = false;
-      btn.textContent = '▶';
-    };
-    window.speechSynthesis.speak(utter);
+  function speak() {
+    if (!currentOoblish) { showToast('Translate something first!', true); return; }
+    speakText(
+      currentOoblish,
+      document.getElementById('speakingPill'),
+      document.getElementById('speakBtn'),
+      document.getElementById('speakLabel')
+    );
+  }
+
+  // ── Challenge mode ───────────────────────────────────────────────────────
+  var CHALLENGE_PHRASES = [
+    "Hello, how are you today?",
+    "The quick brown fox jumps over the lazy dog.",
+    "I love pizza and ice cream.",
+    "What time is it?",
+    "Good morning, sunshine!",
+    "Can you help me find my keys?",
+    "The cat sat on the mat.",
+    "Happy birthday to you!",
+    "Let's go to the beach today.",
+    "My favorite color is blue.",
+    "She sells seashells by the seashore.",
+    "To be or not to be.",
+    "I am hungry, let's eat.",
+    "The stars are beautiful tonight.",
+    "Are you coming to the party?",
+    "Life is short, eat the cake.",
+    "It is a beautiful day outside.",
+    "Do you speak Ooblish?",
+    "Portland is a great city.",
+    "Keep it simple, keep it fun."
+  ];
+
+  var challengeReady  = false;
+  var score           = 0;
+  var round           = 1;
+  var streak          = 0;
+  var currentPhrase   = '';
+  var currentOoblishC = '';
+  var answered        = false;
+
+  function initChallenge() {
+    challengeReady = true;
+    loadChallenge();
+  }
+
+  function loadChallenge() {
+    answered = false;
+    document.getElementById('guessInput').value = '';
+    document.getElementById('guessInput').className = 'guess-input';
+    document.getElementById('guessInput').disabled = false;
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('resultBox').className = 'result-box';
+
+    var pool = CHALLENGE_PHRASES.filter(function(p) { return p !== currentPhrase; });
+    currentPhrase   = pool[Math.floor(Math.random() * pool.length)];
+    currentOoblishC = toOoblish(currentPhrase);
+
+    document.getElementById('promptText').textContent = currentOoblishC;
+    var words = currentPhrase.split(' ').length;
+    document.getElementById('promptHint').textContent = words + ' word' + (words !== 1 ? 's' : '');
+    document.getElementById('roundVal').textContent = round;
+    document.getElementById('guessInput').focus();
+  }
+
+  function speakChallenge() {
+    if (!currentOoblishC) return;
+    speakText(
+      currentOoblishC,
+      document.getElementById('challengeSpeakPill'),
+      document.getElementById('challengeSpeakBtn'),
+      document.getElementById('cSpeakLabel')
+    );
+  }
+
+  function checkAnswer() {
+    if (answered) return;
+    var guess = document.getElementById('guessInput').value.trim();
+    if (!guess) { document.getElementById('guessInput').focus(); return; }
+
+    answered = true;
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('guessInput').disabled = true;
+
+    var clean = function(s) { return s.toLowerCase().replace(/[^a-z\s]/g, '').trim(); };
+    var win = clean(toOoblish(guess)) === clean(toOoblish(currentPhrase));
+
+    if (win) {
+      score++;
+      streak++;
+      document.getElementById('guessInput').className = 'guess-input correct';
+      document.getElementById('resultHeadline').textContent = streak >= 3
+        ? '🔥 Ooblish Master! ' + streak + ' in a row!'
+        : '✓ Correct!';
+      document.getElementById('resultAnswer').innerHTML =
+        'The phrase was: <strong>' + currentPhrase + '</strong>';
+      document.getElementById('resultBox').className = 'result-box win show';
+    } else {
+      streak = 0;
+      document.getElementById('guessInput').className = 'guess-input wrong';
+      document.getElementById('resultHeadline').textContent = '✗ Not quite.';
+      document.getElementById('resultAnswer').innerHTML =
+        'The Ooblish said: <strong>' + currentPhrase + '</strong><br>' +
+        'You guessed: <strong>' + guess + '</strong>';
+      document.getElementById('resultBox').className = 'result-box lose show';
+    }
+
+    document.getElementById('scoreVal').textContent = score;
+    if (streak >= 2) {
+      document.getElementById('streakVal').textContent = streak;
+      document.getElementById('streakBadge').className = 'streak-badge visible';
+    } else {
+      document.getElementById('streakBadge').className = 'streak-badge';
+    }
+  }
+
+  function nextChallenge() {
+    round++;
+    loadChallenge();
   }
 
   // ── Toast ────────────────────────────────────────────────────────────────
@@ -966,6 +1374,9 @@ footer strong { color: var(--oob); }
   });
   document.getElementById('apiKeyInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') saveKey();
+  });
+  document.getElementById('guessInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); answered ? nextChallenge() : checkAnswer(); }
   });
 </script>
 
