@@ -993,19 +993,6 @@ footer strong { color: var(--oob); }
     return result;
   }
 
-  // ElevenLabs struggles with dense "oob" clusters — space them out so each
-  // oob is parsed as a distinct syllable rather than one long phoneme run.
-  function toOoblishTts(text) {
-    var result = '';
-    for (var i = 0; i < text.length; i++) {
-      if (isVowelAt(text, i)) {
-        result += ' oob ';
-      } else {
-        result += text[i];
-      }
-    }
-    return result.replace(/\s+/g, ' ').trim();
-  }
 
   function countVowels(text) {
     var n = 0;
@@ -1218,8 +1205,7 @@ footer strong { color: var(--oob); }
     window.speechSynthesis.speak(utter);
   }
 
-  // ttsText: already-processed text to send (use toOoblishTts() for Ooblish, raw for English)
-  // voiceOpts: ElevenLabs voice_settings override (optional)
+  // voiceOpts: optional ElevenLabs voice_settings override
   async function speakText(ttsText, pillEl, btnEl, labelEl, voiceOpts) {
     if (currentSpeakBtn === btnEl) { stopAudio(); return; }  // toggle off
     stopAudio();
@@ -1233,7 +1219,7 @@ footer strong { color: var(--oob); }
     btnEl.disabled = false; btnEl.textContent = '■';
     if (labelEl) labelEl.textContent = 'Speaking...';
     pillEl.classList.add('visible');
-    var settings = voiceOpts || { stability: 0.75, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false };
+    var settings = voiceOpts || { stability: 0.5, similarity_boost: 0.6, style: 0.1, use_speaker_boost: true };
     try {
       var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
@@ -1274,7 +1260,7 @@ footer strong { color: var(--oob); }
   function speak() {
     if (!currentOoblish) { showToast('Translate something first!', true); return; }
     speakText(
-      toOoblishTts(currentOoblish),
+      currentOoblish,
       document.getElementById('speakingPill'),
       document.getElementById('speakBtn'),
       document.getElementById('speakLabel')
@@ -1352,7 +1338,7 @@ footer strong { color: var(--oob); }
   function speakChallenge() {
     if (!currentOoblishC) return;
     speakText(
-      toOoblishTts(currentOoblishC),
+      currentOoblishC,
       document.getElementById('challengeSpeakPill'),
       document.getElementById('challengeSpeakBtn'),
       document.getElementById('cSpeakLabel')
