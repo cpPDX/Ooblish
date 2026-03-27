@@ -771,7 +771,7 @@ footer strong { color: var(--oob); }
 
 <header>
   <div class="logo">
-    <div class="logo-icon">🫧</div>
+    <div class="logo-icon">🗣️</div>
     <div>
       <div class="logo-title">Ooblish</div>
       <div class="logo-sub">Universal Translator</div>
@@ -797,11 +797,8 @@ footer strong { color: var(--oob); }
       <button class="btn-save" onclick="saveKey()">Save</button>
     </div>
     <div class="voice-chips">
-      <span class="vchip active" data-id="JBFqnCBsd6RMkjVDRZzb" onclick="selectVoice(this)">George</span>
-      <span class="vchip" data-id="EXAVITQu4vr4xnSDxMaL" onclick="selectVoice(this)">Sarah</span>
-      <span class="vchip" data-id="TX3LPaxmHKxFdv7VOQHJ" onclick="selectVoice(this)">Liam</span>
-      <span class="vchip" data-id="pFZP5JQG7iQjIQuC4Bku" onclick="selectVoice(this)">Lily</span>
-      <span class="vchip" data-id="onwK4e9ZLuTAKqWW03F9" onclick="selectVoice(this)">Daniel</span>
+      <span class="vchip active" data-id="9BWtsMINqrJLrRacOk9x" onclick="selectVoice(this)">Aria</span>
+      <span class="vchip" data-id="CwhRBWXzGAHq8TQ4Fs17" onclick="selectVoice(this)">Roger</span>
     </div>
   </div>
 </div>
@@ -922,12 +919,17 @@ footer strong { color: var(--oob); }
       <div>
         <div class="about-section-title">What is Ooblish?</div>
         <div class="about-lore">
-          <strong>Ooblish</strong> is a constructed language built on a single, elegant rule: every vowel is a lie.
-          In Ooblish, no vowel survives in its original form &mdash; each one is replaced by the sacred syllable <strong>oob</strong>.
+          <strong>Ooblish</strong> is the native language of <strong>Oobsloobnd</strong> &mdash; a lush, remote island
+          in the Tropical Pacific Ocean. The island's name is itself a perfect example of the language:
+          <em>Oobsloobnd</em> is simply the Ooblish word for <em>"island."</em>
+          <br><br>
+          The people of Oobsloobnd developed Ooblish on a single, elegant principle: every vowel is a lie.
+          No vowel survives in its original form &mdash; each one is replaced by the sacred syllable <strong>oob</strong>.
+          Linguists believe this arose from the island's ancient oral tradition, where vowels were considered
+          too fleeting and imprecise to be trusted. Only <strong>oob</strong> endures.
           <br><br>
           The result is a language that sounds <em>almost</em> like English but wrong in the most delightful way.
-          Native speakers of Ooblish are said to communicate entirely in rhythm and consonants, using <strong>oob</strong>
-          wherever emotion would otherwise require a vowel.
+          To a native speaker of Oobsloobnd, American English sounds hopelessly cluttered with unnecessary vowels.
           <br><br>
           Even the letter <strong>Y</strong>, when it dares to act like a vowel, is not spared.
         </div>
@@ -1005,7 +1007,7 @@ footer strong { color: var(--oob); }
   // ── State ────────────────────────────────────────────────────────────────
   var currentOoblish  = '';
   var apiKey          = '';
-  var voiceId         = 'JBFqnCBsd6RMkjVDRZzb';
+  var voiceId         = '9BWtsMINqrJLrRacOk9x'; // Aria — American English
   var currentAudio    = null;
   var currentSpeakBtn  = null;
   var currentSpeakPill = null;
@@ -1224,7 +1226,7 @@ footer strong { color: var(--oob); }
       var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
         headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-        body: JSON.stringify({ text: ttsText, model_id: 'eleven_turbo_v2_5', voice_settings: settings })
+        body: JSON.stringify({ text: ttsText, model_id: 'eleven_multilingual_v2', voice_settings: settings })
       });
       if (!res.ok) {
         var err = await res.json().catch(function() { return {}; });
