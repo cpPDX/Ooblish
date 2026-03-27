@@ -966,7 +966,7 @@ footer strong { color: var(--oob); }
 </div><!-- end #page-about -->
 
 <footer>
-  <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
+  <strong>Ooblish</strong> &mdash; the language where every vowel becomes <strong>oob</strong>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -1135,8 +1135,7 @@ footer strong { color: var(--oob); }
   }
 
   function clearAll() {
-    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    stopAudio();
     clearTimeout(debounceTimer);
     document.getElementById('srcInput').value = '';
     var cc = document.getElementById('charCount');
@@ -1174,126 +1173,75 @@ footer strong { color: var(--oob); }
     input.focus();
   }
 
-  // ── Speech ───────────────────────────────────────────────────────────────
-  async function speak() {
-    if (!currentOoblish) { showToast('Translate something first!', true); return; }
+  // ── Speech (shared) ──────────────────────────────────────────────────────
+  function stopAudio() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
 
-    var btn  = document.getElementById('speakBtn');
-    var pill = document.getElementById('speakingPill');
+  function browserSpeak(text, pillEl, btnEl, labelEl) {
+    if (!window.speechSynthesis) { showToast('Speech not supported', true); return; }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85; utter.pitch = 1.05;
+    if (labelEl) labelEl.textContent = 'Speaking (browser)...';
+    pillEl.classList.add('visible');
+    btnEl.disabled = true;
+    utter.onend = utter.onerror = function() { pillEl.classList.remove('visible'); btnEl.disabled = false; };
+    window.speechSynthesis.speak(utter);
+  }
 
-    // Toggle off if already playing
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio       = null;
-      btn.textContent    = '▶';
-      btn.disabled       = false;
-      pill.classList.remove('visible');
-      return;
-    }
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-      btn.textContent = '▶';
-      btn.disabled    = false;
-      pill.classList.remove('visible');
-      return;
-    }
-
+  async function speakText(text, pillEl, btnEl, labelEl) {
+    stopAudio();
     if (!apiKey) {
-      showToast('No key set — using browser voice');
-      browserSpeak(currentOoblish);
+      showToast('No key — using browser voice');
+      browserSpeak(text, pillEl, btnEl, labelEl);
       return;
     }
-
-    btn.disabled    = true;
-    btn.textContent = '⏸';
-    document.getElementById('speakLabel').textContent = 'Speaking...';
-    pill.classList.add('visible');
-
+    btnEl.disabled = true;
+    if (labelEl) labelEl.textContent = 'Speaking...';
+    pillEl.classList.add('visible');
     try {
-      var res = await fetch(
-        'https://api.elevenlabs.io/v1/text-to-speech/' + voiceId,
-        {
-          method: 'POST',
-          headers: {
-            'xi-api-key':   apiKey,
-            'Content-Type': 'application/json',
-            'Accept':       'audio/mpeg'
-          },
-          body: JSON.stringify({
-            text:     currentOoblish,
-            model_id: 'eleven_turbo_v2_5',
-            voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true }
-          })
-        }
-      );
-
+      var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+        method: 'POST',
+        headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+        body: JSON.stringify({ text: text, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
+      });
       if (!res.ok) {
         var err = await res.json().catch(function() { return {}; });
         throw new Error((err && err.detail && (err.detail.message || err.detail)) || res.statusText);
       }
-
       var blob  = await res.blob();
       var url   = URL.createObjectURL(blob);
       var audio = new Audio(url);
-      currentAudio    = audio;
-      btn.disabled    = false;
-
-      audio.onended = function() {
-        pill.classList.remove('visible');
-        btn.disabled    = false;
-        btn.textContent = '▶';
-        URL.revokeObjectURL(url);
-        currentAudio = null;
+      currentAudio = audio;
+      audio.onended = audio.onerror = function() {
+        pillEl.classList.remove('visible'); btnEl.disabled = false;
+        URL.revokeObjectURL(url); currentAudio = null;
       };
-      audio.onerror = function() {
-        pill.classList.remove('visible');
-        btn.disabled    = false;
-        btn.textContent = '▶';
-        URL.revokeObjectURL(url);
-        currentAudio = null;
-        showToast('Playback failed', true);
-      };
-
       await audio.play();
-
     } catch(err) {
-      pill.classList.remove('visible');
-      btn.disabled    = false;
-      btn.textContent = '▶';
-
+      pillEl.classList.remove('visible'); btnEl.disabled = false;
       var msg = (err.message || '').toLowerCase();
       if (msg.indexOf('401') >= 0 || msg.indexOf('invalid') >= 0 || msg.indexOf('unauthorized') >= 0) {
         document.getElementById('keyPill').className = 'key-pill error';
         document.getElementById('keyPillLabel').textContent = 'Key error';
-        showToast('API key rejected — check your key', true);
-      } else if (msg.indexOf('quota') >= 0 || msg.indexOf('limit') >= 0) {
-        showToast('Quota hit — falling back to browser voice', true);
-        browserSpeak(currentOoblish);
+        showToast('API key rejected', true);
       } else {
         showToast('ElevenLabs unavailable — using browser voice');
-        browserSpeak(currentOoblish);
+        browserSpeak(text, pillEl, btnEl, labelEl);
       }
     }
   }
 
-  function browserSpeak(text) {
-    if (!window.speechSynthesis) { showToast('Speech not supported in this browser', true); return; }
-    window.speechSynthesis.cancel();
-    var utter = new SpeechSynthesisUtterance(text);
-    utter.rate  = 0.85;
-    utter.pitch = 1.05;
-    var btn  = document.getElementById('speakBtn');
-    var pill = document.getElementById('speakingPill');
-    document.getElementById('speakLabel').textContent = 'Speaking (browser)...';
-    pill.classList.add('visible');
-    btn.disabled    = false;
-    btn.textContent = '⏸';
-    utter.onend = utter.onerror = function() {
-      pill.classList.remove('visible');
-      btn.disabled    = false;
-      btn.textContent = '▶';
-    };
-    window.speechSynthesis.speak(utter);
+  function speak() {
+    if (!currentOoblish) { showToast('Translate something first!', true); return; }
+    speakText(
+      currentOoblish,
+      document.getElementById('speakingPill'),
+      document.getElementById('speakBtn'),
+      document.getElementById('speakLabel')
+    );
   }
 
   // ── Challenge mode ───────────────────────────────────────────────────────
@@ -1354,43 +1302,12 @@ footer strong { color: var(--oob); }
 
   function speakChallenge() {
     if (!currentOoblishC) return;
-    var pill = document.getElementById('challengeSpeakPill');
-    var btn  = document.getElementById('challengeSpeakBtn');
-    var lbl  = document.getElementById('cSpeakLabel');
-    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    pill.classList.add('visible');
-    btn.disabled = true;
-    if (!apiKey) {
-      showToast('No key — using browser voice');
-      var utter = new SpeechSynthesisUtterance(currentOoblishC);
-      utter.rate = 0.85; utter.pitch = 1.05;
-      lbl.textContent = 'Speaking (browser)...';
-      utter.onend = utter.onerror = function() { pill.classList.remove('visible'); btn.disabled = false; };
-      window.speechSynthesis.speak(utter);
-      return;
-    }
-    lbl.textContent = 'Speaking...';
-    fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
-      method: 'POST',
-      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-      body: JSON.stringify({ text: currentOoblishC, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
-    }).then(function(res) {
-      if (!res.ok) throw new Error(res.statusText);
-      return res.blob();
-    }).then(function(blob) {
-      var url   = URL.createObjectURL(blob);
-      var audio = new Audio(url);
-      currentAudio = audio;
-      audio.onended = audio.onerror = function() {
-        pill.classList.remove('visible'); btn.disabled = false;
-        URL.revokeObjectURL(url); currentAudio = null;
-      };
-      audio.play();
-    }).catch(function() {
-      pill.classList.remove('visible'); btn.disabled = false;
-      showToast('ElevenLabs unavailable', true);
-    });
+    speakText(
+      currentOoblishC,
+      document.getElementById('challengeSpeakPill'),
+      document.getElementById('challengeSpeakBtn'),
+      document.getElementById('cSpeakLabel')
+    );
   }
 
   function checkAnswer() {
