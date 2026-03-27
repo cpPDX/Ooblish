@@ -989,6 +989,20 @@ footer strong { color: var(--oob); }
     return result;
   }
 
+  // ElevenLabs struggles with dense "oob" clusters — space them out so each
+  // oob is parsed as a distinct syllable rather than one long phoneme run.
+  function toOoblishTts(text) {
+    var result = '';
+    for (var i = 0; i < text.length; i++) {
+      if (isVowelAt(text, i)) {
+        result += ' oob ';
+      } else {
+        result += text[i];
+      }
+    }
+    return result.replace(/\s+/g, ' ').trim();
+  }
+
   function countVowels(text) {
     var n = 0;
     for (var i = 0; i < text.length; i++) {
@@ -1205,7 +1219,7 @@ footer strong { color: var(--oob); }
       var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
         headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-        body: JSON.stringify({ text: text, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.3, use_speaker_boost: true } })
+        body: JSON.stringify({ text: toOoblishTts(text), model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.75, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false } })
       });
       if (!res.ok) {
         var err = await res.json().catch(function() { return {}; });
