@@ -630,6 +630,72 @@ textarea::placeholder { color: var(--muted); opacity: 0.6; }
 }
 .btn-next:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ── About page ── */
+.about-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 1.5rem 1.5rem 2.5rem; gap: 1.25rem;
+}
+
+.about-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  width: 100%; max-width: 640px;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+.about-section-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem;
+}
+
+.about-lore { font-size: 0.95rem; line-height: 1.8; color: var(--text); }
+.about-lore strong { color: var(--oob); }
+.about-lore em { color: var(--muted); font-style: italic; }
+
+.rules-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem; align-items: start;
+}
+
+.rule-key {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  color: var(--oob); font-size: 1rem; white-space: nowrap;
+}
+
+.rule-val { font-size: 0.88rem; color: var(--muted); line-height: 1.5; padding-top: 0.1rem; }
+
+.credit-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem 1.4rem;
+  border-left: 3px solid var(--yellow);
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+
+.credit-name {
+  font-family: 'Syne', sans-serif; font-size: 1.2rem;
+  font-weight: 800; color: var(--yellow);
+}
+
+.credit-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.credit-desc { font-size: 0.9rem; color: var(--text); line-height: 1.6; margin-top: 0.25rem; }
+
+.credit-ip {
+  font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(251,191,36,0.06);
+  border-radius: 6px; border: 1px solid rgba(251,191,36,0.15);
+  display: inline-block;
+}
+
+.ui-credit {
+  font-size: 0.75rem; color: var(--muted); text-align: center;
+  padding-top: 0.5rem; border-top: 1px solid var(--border);
+}
+
 /* ── Speaking indicator ── */
 .speaking-pill {
   display: none;
@@ -844,6 +910,60 @@ footer strong { color: var(--oob); }
     </div>
   </div>
 </div><!-- end #page-challenge -->
+
+<!-- ══ ABOUT PAGE ══ -->
+<div class="page" id="page-about">
+  <div class="about-wrap">
+    <div class="about-card">
+      <div>
+        <div class="about-section-title">What is Ooblish?</div>
+        <div class="about-lore">
+          <strong>Ooblish</strong> is a constructed language built on a single, elegant rule: every vowel is a lie.
+          In Ooblish, no vowel survives in its original form &mdash; each one is replaced by the sacred syllable <strong>oob</strong>.
+          <br><br>
+          The result is a language that sounds <em>almost</em> like English but wrong in the most delightful way.
+          Native speakers of Ooblish are said to communicate entirely in rhythm and consonants, using <strong>oob</strong>
+          wherever emotion would otherwise require a vowel.
+          <br><br>
+          Even the letter <strong>Y</strong>, when it dares to act like a vowel, is not spared.
+        </div>
+      </div>
+      <div>
+        <div class="about-section-title">The Rules of Ooblish</div>
+        <div class="rules-grid">
+          <div class="rule-key">A → oob</div>
+          <div class="rule-val">Always replaced. No exceptions. <em>cat → coobt</em></div>
+          <div class="rule-key">E → oob</div>
+          <div class="rule-val">Every E. Every time. <em>hello → hoobboollo</em></div>
+          <div class="rule-key">I → oob</div>
+          <div class="rule-val">Including silent ones. <em>bike → booboobk</em></div>
+          <div class="rule-key">O → oob</div>
+          <div class="rule-val">Yes, even the O in oob itself. <em>open → oobboobn</em></div>
+          <div class="rule-key">U → oob</div>
+          <div class="rule-val">Unconditionally. <em>fun → foobn</em></div>
+          <div class="rule-key">Y → oob*</div>
+          <div class="rule-val">*Only when acting as a vowel (mid/end of word). <em>sky → skoob, yes → yes</em></div>
+        </div>
+      </div>
+      <div>
+        <div class="about-section-title">Intellectual Property</div>
+        <div class="credit-box">
+          <div class="credit-title">Creator &amp; Original Inventor</div>
+          <div class="credit-name">Kayd Phelan</div>
+          <div class="credit-desc">
+            Ooblish was invented by Kayd Phelan. The language, its rules, its name, and the concept of
+            replacing vowels with "oob" are entirely his original idea. This translator exists to bring
+            his vision to life &mdash; the idea was always his.
+          </div>
+          <div class="credit-ip">© Kayd Phelan. All intellectual property rights reserved.</div>
+        </div>
+      </div>
+      <div class="ui-credit">
+        UI and development by Chris Phelan &nbsp;·&nbsp; Built with Claude
+      </div>
+    </div>
+  </div>
+</div><!-- end #page-about -->
 
 <footer>
   <strong>Ooblish</strong> is the ancient language of the Oob people, spoken exclusively in vowels &mdash; each one replaced by the sacred syllable <strong>oob</strong>. Even the letter Y, when it dares act like a vowel, is not spared.
